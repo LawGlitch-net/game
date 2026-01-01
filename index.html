@@ -492,6 +492,7 @@
     </div>
     
     <div id="connection-status"></div>
+    <button id="start-game-btn" class="hidden primary" onclick="startGameManually()" style="margin-top: 15px; width: 100%; max-width: 500px;">▶️ Start Game</button>
 </div>
 
 <div id="game-container" class="hidden">
@@ -909,14 +910,26 @@ function initHost() {
         }
     };
     
-    pc.createOffer().then(d => pc.setLocalDescription(d));
+    pc.createOffer()
+        .then(d => pc.setLocalDescription(d))
+        .catch(e => {
+            console.error("Error creating offer:", e);
+            setStatus("❌ Error creating offer", "error");
+        });
 }
 
 function hostFinalize() {
     try {
         const answer = JSON.parse(document.getElementById('host-answer-input').value);
-        pc.setRemoteDescription(answer);
-        setStatus("✅ Connected!", "success");
+        pc.setRemoteDescription(answer)
+            .then(() => {
+                setStatus("✅ Connected! Click START GAME below.", "success");
+                document.getElementById('start-game-btn').classList.remove('hidden');
+            })
+            .catch(e => {
+                console.error("Error setting remote description:", e);
+                setStatus("❌ Connection failed: " + e.message, "error");
+            });
     } catch (e) {
         setStatus("❌ Invalid code!", "error");
     }
@@ -944,9 +957,21 @@ function initGuest() {
 function guestProcessOffer() {
     try {
         const offer = JSON.parse(document.getElementById('guest-offer-input').value);
-        pc.setRemoteDescription(offer);
-        pc.createAnswer().then(d => pc.setLocalDescription(d));
-        setStatus("⏳ Waiting for friend...", "success");
+        pc.setRemoteDescription(offer)
+            .then(() => pc.createAnswer())
+            .then(d => pc.setLocalDescription(d))
+            .then(() => {
+                setStatus("⏳ Waiting for friend to finalize connection...", "success");
+                setTimeout(() => {
+                    if (document.getElementById('game-container').classList.contains('hidden')) {
+                        document.getElementById('start-game-btn').classList.remove('hidden');
+                    }
+                }, 1000);
+            })
+            .catch(e => {
+                console.error("Error processing offer:", e);
+                setStatus("❌ Invalid code: " + e.message, "error");
+            });
     } catch (e) {
         setStatus("❌ Invalid code!", "error");
     }
@@ -960,15 +985,35 @@ function setStatus(msg, cls) {
 
 function setupChannel(channel) {
     channel.onopen = () => {
-        document.getElementById('setup').classList.add('hidden');
-        document.getElementById('game-container').classList.remove('hidden');
-        renderBoard();
+        startGameUI();
     };
     channel.onmessage = e => {
         const data = JSON.parse(e.data);
         applyMove(data);
     };
+    channel.onerror = (e) => {
+        console.error("Data channel error:", e);
+        setStatus("❌ Connection error. Try again.", "error");
+    };
+    channel.onclose = () => {
+        console.log("Data channel closed");
+    };
     dataChannel = channel;
+}
+
+function startGameUI() {
+    document.getElementById('setup').classList.add('hidden');
+    document.getElementById('game-container').classList.remove('hidden');
+    document.getElementById('start-game-btn').classList.add('hidden');
+    renderBoard();
+}
+
+function startGameManually() {
+    if (dataChannel && dataChannel.readyState === 'open') {
+        startGameUI();
+    } else {
+        setStatus("❌ Connection not ready. Wait a moment and try again.", "error");
+    }
 }
 
 function sendMove(moveData) {
