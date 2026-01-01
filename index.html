@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Quoridor - P2P</title>
+    <title>Purridor - Cat Path Game</title>
     <style>
         * { box-sizing: border-box; }
         
         :root {
-            --bg: #0f0f1e;
-            --bg-secondary: #1a1a2e;
-            --grid: #333;
-            --p1: #00f0ff;
-            --p2: #ff1493;
-            --wall: #4a90e2;
-            --text: #e8e8ff;
-            --text-dim: #a0a0b0;
-            --accent: #00ff88;
+            --bg: #faf8f3;
+            --bg-secondary: #f5f0ea;
+            --grid: #e8dfd7;
+            --p1: #ff9fbf;
+            --p2: #ffb366;
+            --wall: #d4a5a5;
+            --text: #6b5b52;
+            --text-dim: #9a8f88;
+            --accent: #ffb6d9;
+            --border: #d4c4b8;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg) 0%, #1a1a3e 100%);
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #fff5f0 100%);
             color: var(--text);
             display: flex;
             flex-direction: column;
@@ -34,38 +35,43 @@
         
         h1 {
             margin: 15px 0;
-            font-size: clamp(1.8em, 5vw, 2.5em);
-            background: linear-gradient(90deg, var(--p1), var(--p2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            font-weight: 700;
+            font-size: clamp(2em, 6vw, 3em);
+            color: var(--p1);
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 2px;
         }
         
         /* CONNECTION UI */
         #setup {
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(74, 144, 226, 0.1) 100%);
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 182, 217, 0.15) 100%);
             padding: clamp(15px, 4vw, 25px);
-            border-radius: 12px;
-            border: 2px solid var(--wall);
+            border-radius: 16px;
+            border: 3px solid var(--border);
             width: 100%;
             max-width: 500px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.1);
+            box-shadow: 0 8px 24px rgba(255, 159, 191, 0.15);
         }
         
         #setup h3 {
             margin-top: 0;
             margin-bottom: 20px;
             color: var(--p1);
-            font-size: clamp(1.1em, 3vw, 1.4em);
+            font-size: clamp(1.2em, 4vw, 1.5em);
+            text-align: center;
         }
         
         #setup-start {
             display: flex;
             flex-direction: column;
             gap: 12px;
+        }
+        
+        #setup-start p {
+            text-align: center;
+            color: var(--text-dim);
+            margin: 0 0 10px 0;
         }
         
         #setup-start button {
@@ -76,9 +82,9 @@
         .step {
             margin-bottom: 20px;
             padding: 15px;
-            border-left: 3px solid var(--p1);
-            border-radius: 6px;
-            background: rgba(0, 240, 255, 0.05);
+            border-left: 4px solid var(--p1);
+            border-radius: 8px;
+            background: rgba(255, 159, 191, 0.08);
         }
         
         .step p {
@@ -90,10 +96,10 @@
         textarea {
             width: 100%;
             height: 70px;
-            background: #111;
-            color: #0f0;
-            border: 1px solid #555;
-            border-radius: 6px;
+            background: #fff;
+            color: #333;
+            border: 2px solid var(--border);
+            border-radius: 8px;
             font-size: 11px;
             resize: none;
             padding: 10px;
@@ -104,35 +110,33 @@
         button {
             cursor: pointer;
             padding: clamp(10px, 2vw, 12px) clamp(16px, 3vw, 24px);
-            background: linear-gradient(135deg, #444 0%, #555 100%);
+            background: linear-gradient(135deg, #e8b8d8 0%, #f0c8e0 100%);
             color: white;
-            border: 2px solid #666;
-            border-radius: 8px;
-            font-weight: 600;
+            border: 2px solid var(--p1);
+            border-radius: 10px;
+            font-weight: 700;
             font-size: clamp(0.85em, 2vw, 0.95em);
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(255, 159, 191, 0.2);
         }
         
         button:hover {
-            background: linear-gradient(135deg, #555 0%, #666 100%);
-            border-color: #888;
+            background: linear-gradient(135deg, #ffadd8 0%, #ffc0e0 100%);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 16px rgba(255, 159, 191, 0.3);
         }
         
         button.primary {
-            background: linear-gradient(135deg, var(--p1) 0%, #00d9ff 100%);
-            color: #000;
-            border-color: var(--p1);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            background: linear-gradient(135deg, var(--p1) 0%, #ffb3d9 100%);
+            color: white;
+            border-color: #ff7fa8;
         }
         
         button.primary:hover {
-            background: linear-gradient(135deg, #00ffff 0%, #00e5ff 100%);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
-            transform: translateY(-3px);
+            background: linear-gradient(135deg, #ffb3d9 0%, #ffcce5 100%);
+            box-shadow: 0 6px 20px rgba(255, 159, 191, 0.4);
         }
         
         .hidden { display: none !important; }
@@ -154,11 +158,12 @@
             align-items: center;
             margin-bottom: 15px;
             padding: 15px;
-            background: linear-gradient(90deg, rgba(0, 240, 255, 0.1) 0%, rgba(255, 20, 147, 0.1) 100%);
-            border-radius: 10px;
-            border: 1px solid var(--wall);
+            background: linear-gradient(90deg, rgba(255, 159, 191, 0.15) 0%, rgba(255, 179, 102, 0.15) 100%);
+            border-radius: 12px;
+            border: 2px solid var(--border);
             flex-wrap: wrap;
             gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
         
         #status {
@@ -178,21 +183,20 @@
             align-items: center;
             gap: 8px;
             padding: 8px 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            border: 1px solid currentColor;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            border: 2px solid currentColor;
             font-size: clamp(0.85em, 2vw, 0.95em);
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         
         .wall-counter.p1 {
             color: var(--p1);
-            border-color: var(--p1);
         }
         
         .wall-counter.p2 {
             color: var(--p2);
-            border-color: var(--p2);
         }
         
         .instructions {
@@ -208,87 +212,77 @@
             display: grid;
             grid-template-columns: repeat(9, 1fr);
             grid-template-rows: repeat(9, 1fr);
-            gap: clamp(6px, 2vw, 10px);
-            background: #000;
+            gap: clamp(4px, 1.5vw, 8px);
+            background: linear-gradient(135deg, #fff9f5 0%, #fff5f0 100%);
             padding: clamp(10px, 2vw, 15px);
-            border: 3px solid var(--wall);
-            border-radius: 12px;
+            border: 4px solid var(--border);
+            border-radius: 16px;
             position: relative;
             width: 100%;
             aspect-ratio: 1;
             max-width: 520px;
-            box-shadow: 0 0 40px rgba(74, 144, 226, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(255, 159, 191, 0.12), inset 0 0 20px rgba(255, 255, 255, 0.5);
         }
         
         .cell {
             width: 100%;
             aspect-ratio: 1;
-            background: linear-gradient(135deg, #2a2a3a 0%, #1f1f2f 100%);
-            border-radius: clamp(3px, 1vw, 6px);
+            background: linear-gradient(135deg, #fff5f0 0%, #fff0eb 100%);
+            border-radius: 10px;
             position: relative;
             cursor: pointer;
-            border: 1px solid #444;
-            transition: all 0.2s ease;
+            border: 2px solid var(--grid);
+            transition: all 0.15s ease;
         }
         
         .cell:hover {
-            background: linear-gradient(135deg, #333 0%, #242440 100%);
-            border-color: #666;
+            background: linear-gradient(135deg, #ffecef 0%, #ffe5e8 100%);
+            border-color: var(--p1);
+            box-shadow: 0 0 8px rgba(255, 159, 191, 0.2);
         }
         
         .cell.valid-move {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 240, 255, 0.1) 100%);
-            border: 2px solid var(--p1);
-            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2), 0 0 10px rgba(0, 240, 255, 0.3);
+            background: linear-gradient(135deg, rgba(255, 179, 102, 0.3) 0%, rgba(255, 159, 191, 0.2) 100%);
+            border: 2px solid var(--p2);
+            box-shadow: inset 0 0 8px rgba(255, 179, 102, 0.2), 0 0 12px rgba(255, 159, 191, 0.25);
         }
         
         /* PAWNS */
         .pawn {
-            width: 75%;
-            aspect-ratio: 1;
-            border-radius: 50%;
+            font-size: clamp(20px, 5vw, 36px);
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 0 15px currentColor, inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 10;
-            border: 2px solid currentColor;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
         }
         
-        .p1 {
-            background: linear-gradient(135deg, var(--p1) 0%, #00c8ff 100%);
-            color: var(--p1);
-        }
-        
-        .p2 {
-            background: linear-gradient(135deg, var(--p2) 0%, #ff4da6 100%);
-            color: var(--p2);
+        .pawn:hover {
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+            transform: translate(-50%, -50%) scale(1.1);
         }
         
         /* WALLS */
         .wall {
             position: absolute;
-            background: linear-gradient(90deg, var(--wall) 0%, #5aa3ff 100%);
-            box-shadow: 0 0 10px var(--wall), inset 0 0 5px rgba(255, 255, 255, 0.3);
+            background: linear-gradient(90deg, var(--wall) 0%, #e0b8b8 100%);
+            box-shadow: 0 2px 6px rgba(212, 165, 165, 0.4);
             z-index: 5;
-            border-radius: 2px;
+            border-radius: 3px;
             pointer-events: none;
+            border: 1px solid #c99a9a;
         }
         
         .wall.h {
-            height: clamp(6px, 1vw, 10px);
-            width: calc(200% + clamp(6px, 2vw, 10px));
-            margin-top: calc(-50% - clamp(3px, 0.5vw, 5px));
-            margin-left: 0;
+            height: clamp(4px, 0.8vw, 7px);
+            width: 100%;
         }
         
         .wall.v {
-            width: clamp(6px, 1vw, 10px);
-            height: calc(200% + clamp(6px, 2vw, 10px));
-            margin-left: calc(-50% - clamp(3px, 0.5vw, 5px));
-            margin-top: 0;
+            width: clamp(4px, 0.8vw, 7px);
+            height: 100%;
         }
         
         /* GHOST WALLS */
@@ -297,35 +291,34 @@
             background: transparent;
             z-index: 20;
             cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.15s ease;
+            border-radius: 2px;
+            transition: all 0.12s ease;
         }
         
         .gap-h:hover, .gap-v:hover {
-            background: rgba(0, 240, 255, 0.3);
-            border: 1px dashed var(--p1);
+            background: rgba(255, 179, 102, 0.4);
+            border: 2px dashed var(--p2);
         }
         
         #connection-status {
-            color: var(--accent);
+            color: var(--text-dim);
             margin-top: 10px;
             font-size: clamp(0.85em, 2vw, 0.95em);
             text-align: center;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         #connection-status.error {
-            color: #ff4444;
+            color: #d97171;
         }
         
         #connection-status.success {
-            color: var(--accent);
+            color: #a8d5a8;
         }
         
-        /* RESPONSIVE */
         @media (max-width: 600px) {
             body {
-                padding: 10px;
+                padding: 8px;
             }
             
             #setup {
@@ -339,49 +332,44 @@
             #board {
                 max-width: 100%;
             }
-            
-            .wall-counter {
-                font-size: 0.8em;
-                padding: 6px 12px;
-            }
         }
     </style>
 </head>
 <body>
 
-<h1>⚡ NEON QUORIDOR</h1>
+<h1>🐱 Purridor 🐱</h1>
 
 <div id="setup">
-    <h3>🎮 Connect Players</h3>
+    <h3>Choose Your Player</h3>
     <div id="setup-start">
-        <p style="margin: 0 0 15px 0; color: var(--text-dim);">Are you the Host or the Guest?</p>
-        <button class="primary" onclick="initHost()">👑 I am HOST (Player 1)</button>
-        <button onclick="initGuest()">🎯 I am GUEST (Player 2)</button>
+        <p>Who will you be?</p>
+        <button class="primary" onclick="initHost()">😸 Sunny Cat (Host)</button>
+        <button onclick="initGuest()">😻 Happy Cat (Guest)</button>
     </div>
 
     <div id="host-flow" class="hidden">
         <div class="step">
-            <p>📋 Step 1: Copy this code and send it to your friend:</p>
+            <p>📋 Step 1: Copy and share this code:</p>
             <textarea id="host-offer" readonly>Generating...</textarea>
-            <button onclick="copyToClipboard('host-offer')">📋 Copy Offer</button>
+            <button onclick="copyToClipboard('host-offer')">📋 Copy</button>
         </div>
         <div class="step">
-            <p>📋 Step 2: Paste the code your friend sends back:</p>
-            <textarea id="host-answer-input" placeholder="Paste Guest's answer here..."></textarea>
-            <button class="primary" onclick="hostFinalize()">▶️ Start Game</button>
+            <p>📋 Step 2: Paste the code from your friend:</p>
+            <textarea id="host-answer-input" placeholder="Paste friend's code here..."></textarea>
+            <button class="primary" onclick="hostFinalize()">▶️ Start</button>
         </div>
     </div>
 
     <div id="guest-flow" class="hidden">
         <div class="step">
-            <p>📋 Step 1: Paste the code from the Host:</p>
-            <textarea id="guest-offer-input" placeholder="Paste Host's offer here..."></textarea>
-            <button class="primary" onclick="guestProcessOffer()">⚙️ Generate Answer</button>
+            <p>📋 Step 1: Paste the code from your friend:</p>
+            <textarea id="guest-offer-input" placeholder="Paste friend's code here..."></textarea>
+            <button class="primary" onclick="guestProcessOffer()">⚙️ Generate Code</button>
         </div>
         <div class="step hidden" id="guest-answer-step">
-            <p>📋 Step 2: Copy this code and send it back to the Host:</p>
+            <p>📋 Step 2: Copy and send this code:</p>
             <textarea id="guest-answer" readonly></textarea>
-            <button onclick="copyToClipboard('guest-answer')">📋 Copy Answer</button>
+            <button onclick="copyToClipboard('guest-answer')">📋 Copy</button>
         </div>
     </div>
     
@@ -390,13 +378,13 @@
 
 <div id="game-container" class="hidden">
     <div id="status-bar">
-        <div id="status">Turn: <span id="turn-indicator">Player 1</span></div>
+        <div id="status">Turn: <span id="turn-indicator">Sunny</span></div>
         <div class="wall-counter p1" id="walls-p1">🧱 P1: 10</div>
         <div class="wall-counter p2" id="walls-p2">🧱 P2: 10</div>
     </div>
     
     <div class="instructions">
-        <div>👆 Tap cells to move • 🧱 Tap wall gaps to place walls</div>
+        <div>👆 Tap to move • 🧱 Tap gaps between cells to place walls</div>
     </div>
     
     <div id="board"></div>
@@ -420,10 +408,12 @@ function updateBoardScaling() {
     if (!board) return;
     
     const maxWidth = Math.min(520, window.innerWidth - 40);
-    const totalGap = 8 * Math.max(6, Math.floor(maxWidth * 0.02));
-    const availableSpace = maxWidth - 30 - totalGap;
+    const gapSize = Math.max(4, Math.floor(maxWidth * 0.015));
+    const totalGaps = 8 * gapSize;
+    const padding = 30;
+    const availableSpace = maxWidth - padding - totalGaps;
     boardScaling.cellSize = Math.floor(availableSpace / 9);
-    boardScaling.gapSize = Math.max(6, Math.floor(maxWidth * 0.02));
+    boardScaling.gapSize = gapSize;
 }
 
 window.addEventListener('resize', () => {
@@ -442,9 +432,7 @@ function hasPath(playerPos, targetRow, walls) {
         let {x, y} = queue.shift();
         if (y === targetRow) return true;
 
-        const moves = [
-            {dx:0, dy:-1}, {dx:0, dy:1}, {dx:-1, dy:0}, {dx:1, dy:0}
-        ];
+        const moves = [{dx:0, dy:-1}, {dx:0, dy:1}, {dx:-1, dy:0}, {dx:1, dy:0}];
 
         for (let m of moves) {
             let nx = x + m.dx;
@@ -464,9 +452,11 @@ function hasPath(playerPos, targetRow, walls) {
 function isBlocked(x1, y1, x2, y2, walls) {
     for (let w of walls) {
         if (w.type === 'h') {
-            if (y1 !== y2 && Math.min(y1, y2) === w.y && (x1 === w.x || x1 === w.x + 1)) return true;
+            if (y1 < y2 && y2 - y1 === 1 && w.y === y1 && (w.x === x1 || w.x === x1 + 1)) return true;
+            if (y1 > y2 && y1 - y2 === 1 && w.y === y2 && (w.x === x1 || w.x === x1 + 1)) return true;
         } else {
-            if (x1 !== x2 && Math.min(x1, x2) === w.x && (y1 === w.y || y1 === w.y + 1)) return true;
+            if (x1 < x2 && x2 - x1 === 1 && w.x === x1 && (w.y === y1 || w.y === y1 + 1)) return true;
+            if (x1 > x2 && x1 - x2 === 1 && w.x === x2 && (w.y === y1 || w.y === y1 + 1)) return true;
         }
     }
     return false;
@@ -474,9 +464,7 @@ function isBlocked(x1, y1, x2, y2, walls) {
 
 function getValidMoves(playerPos, walls) {
     const moves = [];
-    const directions = [
-        {dx:0, dy:-1}, {dx:0, dy:1}, {dx:-1, dy:0}, {dx:1, dy:0}
-    ];
+    const directions = [{dx:0, dy:-1}, {dx:0, dy:1}, {dx:-1, dy:0}, {dx:1, dy:0}];
     
     for (let dir of directions) {
         const nx = playerPos.x + dir.dx;
@@ -491,6 +479,13 @@ function getValidMoves(playerPos, walls) {
     return moves;
 }
 
+function getGridPosition(x, y) {
+    const padding = 15;
+    const left = padding + x * (boardScaling.cellSize + boardScaling.gapSize);
+    const top = padding + y * (boardScaling.cellSize + boardScaling.gapSize);
+    return { left, top };
+}
+
 function renderBoard() {
     updateBoardScaling();
     const board = document.getElementById('board');
@@ -502,7 +497,10 @@ function renderBoard() {
             d.className = 'cell';
             d.dataset.x = x;
             d.dataset.y = y;
+            d.dataset.index = y * 9 + x;
             d.onclick = () => handleMoveClick(x, y);
+            d.style.gridColumn = x + 1;
+            d.style.gridRow = y + 1;
             board.appendChild(d);
         }
     }
@@ -517,21 +515,33 @@ function renderBoard() {
     });
 
     let p1 = document.createElement('div');
-    p1.className = 'pawn p1';
-    setPosition(p1, state.p1.x, state.p1.y);
+    p1.className = 'pawn';
+    p1.innerText = '😸';
+    p1.style.gridColumn = state.p1.x + 1;
+    p1.style.gridRow = state.p1.y + 1;
     board.appendChild(p1);
 
     let p2 = document.createElement('div');
-    p2.className = 'pawn p2';
-    setPosition(p2, state.p2.x, state.p2.y);
+    p2.className = 'pawn';
+    p2.innerText = '😻';
+    p2.style.gridColumn = state.p2.x + 1;
+    p2.style.gridRow = state.p2.y + 1;
     board.appendChild(p2);
 
     state.walls.forEach(w => {
         let wd = document.createElement('div');
         wd.className = `wall ${w.type}`;
-        const pos = getCellPosition(w.x, w.y, w.type);
-        wd.style.left = pos.left + 'px';
-        wd.style.top = pos.top + 'px';
+        
+        if (w.type === 'h') {
+            wd.style.gridColumn = (w.x + 1) + ' / span 2';
+            wd.style.gridRow = (w.y + 1) + ' / span 1';
+            wd.style.gridRowStart = w.y + 1.5;
+        } else {
+            wd.style.gridColumn = (w.x + 1) + ' / span 1';
+            wd.style.gridRow = (w.y + 1) + ' / span 2';
+            wd.style.gridColumnStart = w.x + 1.5;
+        }
+        
         board.appendChild(wd);
     });
 
@@ -540,27 +550,6 @@ function renderBoard() {
     }
     
     updateStatus();
-}
-
-function getCellPosition(x, y, type) {
-    const cellSize = boardScaling.cellSize;
-    const gapSize = boardScaling.gapSize;
-    const padding = 15;
-    
-    const baseX = padding + x * (cellSize + gapSize);
-    const baseY = padding + y * (cellSize + gapSize);
-    
-    if (type === 'h') {
-        return {
-            left: baseX,
-            top: baseY + cellSize + gapSize / 2 - (boardScaling.gapSize / 2)
-        };
-    } else {
-        return {
-            left: baseX + cellSize + gapSize / 2 - (boardScaling.gapSize / 2),
-            top: baseY
-        };
-    }
 }
 
 function renderWallGaps(board) {
@@ -572,11 +561,15 @@ function renderWallGaps(board) {
         for (let x = 0; x < 8; x++) {
             let g = document.createElement('div');
             g.className = 'gap-h';
-            g.style.left = (padding + x * (cellSize + gapSize)) + 'px';
-            g.style.top = (padding + y * (cellSize + gapSize) + cellSize) + 'px';
-            g.style.width = (cellSize * 2 + gapSize) + 'px';
+            g.style.gridColumn = (x + 1) + ' / span 2';
+            g.style.gridRow = (y + 1) + ' / span 1';
+            g.style.gridRowStart = y + 1.5;
             g.style.height = gapSize + 'px';
-            g.onclick = () => handleWallClick(x, y, 'h');
+            g.style.cursor = 'pointer';
+            g.onclick = (e) => {
+                e.stopPropagation();
+                handleWallClick(x, y, 'h');
+            };
             board.appendChild(g);
         }
     }
@@ -585,33 +578,23 @@ function renderWallGaps(board) {
         for (let x = 0; x < 8; x++) {
             let g = document.createElement('div');
             g.className = 'gap-v';
-            g.style.left = (padding + x * (cellSize + gapSize) + cellSize) + 'px';
-            g.style.top = (padding + y * (cellSize + gapSize)) + 'px';
+            g.style.gridColumn = (x + 1) + ' / span 1';
+            g.style.gridRow = (y + 1) + ' / span 2';
+            g.style.gridColumnStart = x + 1.5;
             g.style.width = gapSize + 'px';
-            g.style.height = (cellSize * 2 + gapSize) + 'px';
-            g.onclick = () => handleWallClick(x, y, 'v');
+            g.style.cursor = 'pointer';
+            g.onclick = (e) => {
+                e.stopPropagation();
+                handleWallClick(x, y, 'v');
+            };
             board.appendChild(g);
         }
     }
 }
 
-function setPosition(el, x, y) {
-    const cellSize = boardScaling.cellSize;
-    const gapSize = boardScaling.gapSize;
-    const padding = 15;
-    
-    const boardX = padding + x * (cellSize + gapSize);
-    const boardY = padding + y * (cellSize + gapSize);
-    
-    el.style.left = boardX + 'px';
-    el.style.top = boardY + 'px';
-    el.style.width = cellSize + 'px';
-    el.style.height = cellSize + 'px';
-}
-
 function updateStatus() {
     const ind = document.getElementById('turn-indicator');
-    const playerName = state.turn === 1 ? "🔵 Player 1" : "🔴 Player 2";
+    const playerName = state.turn === 1 ? "😸 Sunny" : "😻 Happy";
     let text = playerName;
     
     if(state.turn === state.myPlayerId) {
@@ -646,20 +629,20 @@ function handleWallClick(x, y, type) {
     }
     
     const overlap = state.walls.some(w => {
-        if (w.x === x && w.y === y) return true;
+        if (w.x === x && w.y === y && w.type === type) return true;
         if (type === 'h' && w.type === 'h' && w.y === y && Math.abs(w.x - x) <= 1) return true;
         if (type === 'v' && w.type === 'v' && w.x === x && Math.abs(w.y - y) <= 1) return true;
         return false;
     });
 
     if (overlap) {
-        alert("⚠️ Wall overlaps!");
+        alert("⚠️ Wall already there!");
         return;
     }
 
     const testWalls = [...state.walls, {x, y, type}];
     if (!hasPath(state.p1, 8, testWalls) || !hasPath(state.p2, 0, testWalls)) {
-        alert("⚠️ Cannot block path to goal!");
+        alert("⚠️ Can't block the path!");
         return;
     }
 
@@ -678,11 +661,11 @@ function applyMove(data) {
     }
     
     if (state.p1.y === 8) {
-        alert("🎉 Player 1 Wins!");
+        alert("🎉 Sunny Cat Wins!");
         location.reload();
     }
     if (state.p2.y === 0) {
-        alert("🎉 Player 2 Wins!");
+        alert("🎉 Happy Cat Wins!");
         location.reload();
     }
 
@@ -715,9 +698,9 @@ function hostFinalize() {
     try {
         const answer = JSON.parse(document.getElementById('host-answer-input').value);
         pc.setRemoteDescription(answer);
-        setStatus("✅ Connection established!", "success");
+        setStatus("✅ Connected!", "success");
     } catch (e) {
-        setStatus("❌ Invalid answer code!", "error");
+        setStatus("❌ Invalid code!", "error");
     }
 }
 
@@ -745,9 +728,9 @@ function guestProcessOffer() {
         const offer = JSON.parse(document.getElementById('guest-offer-input').value);
         pc.setRemoteDescription(offer);
         pc.createAnswer().then(d => pc.setLocalDescription(d));
-        setStatus("⏳ Waiting for host...", "success");
+        setStatus("⏳ Waiting for friend...", "success");
     } catch (e) {
-        setStatus("❌ Invalid offer code!", "error");
+        setStatus("❌ Invalid code!", "error");
     }
 }
 
@@ -780,7 +763,7 @@ function copyToClipboard(id) {
     const el = document.getElementById(id);
     el.select();
     document.execCommand('copy');
-    alert("✅ Copied to clipboard!");
+    alert("✅ Copied!");
 }
 </script>
 </body>
