@@ -455,14 +455,14 @@
 </head>
 <body>
 
-<h1>🐱 Mitti Mitti 🐱</h1>
+<h1>😼 Mitti Mitti 😻</h1>
 
 <div id="setup">
     <h3>Choose Your Player</h3>
     <div id="setup-start">
         <p>Who will you be?</p>
-        <button class="primary" onclick="initHost()">😸 Sunny Cat (Host)</button>
-        <button onclick="initGuest()">😻 Happy Cat (Guest)</button>
+        <button class="primary" onclick="initHost()">🦀 Crabby (Host)</button>
+        <button onclick="initGuest()">🦖 Dino (Guest)</button>
     </div>
 
     <div id="host-flow" class="hidden">
@@ -870,9 +870,48 @@ function showVictory(winner) {
 function applyMove(data) {
     if (data.type === 'MOVE') {
         let p = state.turn === 1 ? state.p1 : state.p2;
+        
+        // Validate move
+        const dx = Math.abs(data.x - p.x);
+        const dy = Math.abs(data.y - p.y);
+        const dist = dx + dy;
+        
+        // Check move is adjacent and not blocked
+        if (dist !== 1) {
+            console.error("Invalid move distance:", dist);
+            return;
+        }
+        
+        if (isBlocked(p.x, p.y, data.x, data.y, state.walls)) {
+            console.error("Move is blocked by wall");
+            return;
+        }
+        
+        // Check bounds
+        if (data.x < 0 || data.x >= 9 || data.y < 0 || data.y >= 9) {
+            console.error("Move out of bounds");
+            return;
+        }
+        
         p.x = data.x;
         p.y = data.y;
     } else if (data.type === 'WALL') {
+        // Validate wall placement
+        if (data.x < 0 || data.y < 0) {
+            console.error("Invalid wall coordinates");
+            return;
+        }
+        
+        if (data.wallType === 'h' && (data.x > 8 || data.y > 7)) {
+            console.error("Horizontal wall out of bounds");
+            return;
+        }
+        
+        if (data.wallType === 'v' && (data.x > 7 || data.y > 8)) {
+            console.error("Vertical wall out of bounds");
+            return;
+        }
+        
         state.walls.push({ x: data.x, y: data.y, type: data.wallType });
         const me = state.turn === 1 ? state.p1 : state.p2;
         me.walls--;
