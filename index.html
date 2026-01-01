@@ -5,145 +5,434 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Quoridor - P2P</title>
     <style>
+        * { box-sizing: border-box; }
+        
         :root {
-            --bg: #1a1a1a;
+            --bg: #0f0f1e;
+            --bg-secondary: #1a1a2e;
             --grid: #333;
-            --p1: #00e5ff; /* Cyan Pacman */
-            --p2: #ff4081; /* Pink Ghost */
-            --wall: #0056b3;
-            --text: #eee;
+            --p1: #00f0ff;
+            --p2: #ff1493;
+            --wall: #4a90e2;
+            --text: #e8e8ff;
+            --text-dim: #a0a0b0;
+            --accent: #00ff88;
         }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a1a3e 100%);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 12px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        h1 {
+            margin: 15px 0;
+            font-size: clamp(1.8em, 5vw, 2.5em);
+            background: linear-gradient(90deg, var(--p1), var(--p2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            font-weight: 700;
+        }
         
         /* CONNECTION UI */
-        #setup { background: #222; padding: 20px; border-radius: 8px; border: 1px solid #444; max-width: 600px; width: 100%; margin-bottom: 20px; }
-        textarea { width: 100%; height: 60px; background: #111; color: #0f0; border: 1px solid #555; font-size: 10px; resize: none; }
-        button { cursor: pointer; padding: 8px 16px; margin: 5px 0; background: #444; color: white; border: none; border-radius: 4px; }
-        button:hover { background: #666; }
-        button.primary { background: var(--p1); color: #000; font-weight: bold; }
+        #setup {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(74, 144, 226, 0.1) 100%);
+            padding: clamp(15px, 4vw, 25px);
+            border-radius: 12px;
+            border: 2px solid var(--wall);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.1);
+        }
+        
+        #setup h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--p1);
+            font-size: clamp(1.1em, 3vw, 1.4em);
+        }
+        
+        #setup-start {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        #setup-start button {
+            padding: 14px 20px;
+            font-size: clamp(0.9em, 2vw, 1em);
+        }
+        
+        .step {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 3px solid var(--p1);
+            border-radius: 6px;
+            background: rgba(0, 240, 255, 0.05);
+        }
+        
+        .step p {
+            margin: 0 0 10px 0;
+            font-size: clamp(0.85em, 2vw, 0.95em);
+            color: var(--text-dim);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 70px;
+            background: #111;
+            color: #0f0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            font-size: 11px;
+            resize: none;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            cursor: pointer;
+            padding: clamp(10px, 2vw, 12px) clamp(16px, 3vw, 24px);
+            background: linear-gradient(135deg, #444 0%, #555 100%);
+            color: white;
+            border: 2px solid #666;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: clamp(0.85em, 2vw, 0.95em);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #555 0%, #666 100%);
+            border-color: #888;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        button.primary {
+            background: linear-gradient(135deg, var(--p1) 0%, #00d9ff 100%);
+            color: #000;
+            border-color: var(--p1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+        
+        button.primary:hover {
+            background: linear-gradient(135deg, #00ffff 0%, #00e5ff 100%);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+            transform: translateY(-3px);
+        }
+        
         .hidden { display: none !important; }
-        .step { margin-bottom: 15px; border-left: 2px solid var(--p1); padding-left: 10px; }
-
+        
+        /* GAME BOARD CONTAINER */
+        #game-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        #status-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.1) 0%, rgba(255, 20, 147, 0.1) 100%);
+            border-radius: 10px;
+            border: 1px solid var(--wall);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        #status {
+            font-size: clamp(1em, 3vw, 1.3em);
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        #turn-indicator {
+            color: var(--p1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .wall-counter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid currentColor;
+            font-size: clamp(0.85em, 2vw, 0.95em);
+            font-weight: 600;
+        }
+        
+        .wall-counter.p1 {
+            color: var(--p1);
+            border-color: var(--p1);
+        }
+        
+        .wall-counter.p2 {
+            color: var(--p2);
+            border-color: var(--p2);
+        }
+        
+        .instructions {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: clamp(0.8em, 2vw, 0.9em);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
         /* GAME BOARD */
-        #game-container { position: relative; display: flex; flex-direction: column; align-items: center; }
         #board {
             display: grid;
-            grid-template-columns: repeat(9, 40px);
-            grid-template-rows: repeat(9, 40px);
-            gap: 10px;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: clamp(6px, 2vw, 10px);
             background: #000;
-            padding: 10px;
-            border: 2px solid var(--wall);
-            border-radius: 4px;
+            padding: clamp(10px, 2vw, 15px);
+            border: 3px solid var(--wall);
+            border-radius: 12px;
             position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 520px;
+            box-shadow: 0 0 40px rgba(74, 144, 226, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
+        
         .cell {
-            width: 40px; height: 40px;
-            background: #2a2a2a;
-            border-radius: 4px;
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #2a2a3a 0%, #1f1f2f 100%);
+            border-radius: clamp(3px, 1vw, 6px);
             position: relative;
             cursor: pointer;
+            border: 1px solid #444;
+            transition: all 0.2s ease;
         }
-        .cell:hover { background: #333; }
-        .cell.highlight { background: #444; box-shadow: inset 0 0 5px var(--p1); }
+        
+        .cell:hover {
+            background: linear-gradient(135deg, #333 0%, #242440 100%);
+            border-color: #666;
+        }
+        
+        .cell.valid-move {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 240, 255, 0.1) 100%);
+            border: 2px solid var(--p1);
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2), 0 0 10px rgba(0, 240, 255, 0.3);
+        }
         
         /* PAWNS */
         .pawn {
-            width: 30px; height: 30px;
+            width: 75%;
+            aspect-ratio: 1;
             border-radius: 50%;
             position: absolute;
-            top: 5px; left: 5px;
-            transition: all 0.2s;
-            box-shadow: 0 0 10px currentColor;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 15px currentColor, inset 0 0 10px rgba(255, 255, 255, 0.2);
             z-index: 10;
+            border: 2px solid currentColor;
         }
-        .p1 { background: var(--p1); color: var(--p1); }
-        .p2 { background: var(--p2); color: var(--p2); border-radius: 50% 50% 0 0; } /* Ghost shape hint */
-
+        
+        .p1 {
+            background: linear-gradient(135deg, var(--p1) 0%, #00c8ff 100%);
+            color: var(--p1);
+        }
+        
+        .p2 {
+            background: linear-gradient(135deg, var(--p2) 0%, #ff4da6 100%);
+            color: var(--p2);
+        }
+        
         /* WALLS */
         .wall {
             position: absolute;
-            background: var(--wall);
-            box-shadow: 0 0 5px var(--wall);
+            background: linear-gradient(90deg, var(--wall) 0%, #5aa3ff 100%);
+            box-shadow: 0 0 10px var(--wall), inset 0 0 5px rgba(255, 255, 255, 0.3);
             z-index: 5;
             border-radius: 2px;
+            pointer-events: none;
         }
-        .wall.h { height: 10px; width: 90px; margin-top: -10px; margin-left: 0; pointer-events: none; }
-        .wall.v { width: 10px; height: 90px; margin-left: -10px; margin-top: 0; pointer-events: none; }
         
-        /* GHOST WALLS (Hover) */
-        .gap-h, .gap-v { position: absolute; background: transparent; z-index: 20; }
-        .gap-h:hover { background: rgba(0, 229, 255, 0.3); cursor: pointer; }
-        .gap-v:hover { background: rgba(0, 229, 255, 0.3); cursor: pointer; }
-
-        #status { margin-top: 10px; font-size: 1.2em; font-weight: bold; }
-        #turn-indicator { color: var(--p1); }
+        .wall.h {
+            height: clamp(6px, 1vw, 10px);
+            width: calc(200% + clamp(6px, 2vw, 10px));
+            margin-top: calc(-50% - clamp(3px, 0.5vw, 5px));
+            margin-left: 0;
+        }
+        
+        .wall.v {
+            width: clamp(6px, 1vw, 10px);
+            height: calc(200% + clamp(6px, 2vw, 10px));
+            margin-left: calc(-50% - clamp(3px, 0.5vw, 5px));
+            margin-top: 0;
+        }
+        
+        /* GHOST WALLS */
+        .gap-h, .gap-v {
+            position: absolute;
+            background: transparent;
+            z-index: 20;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+        
+        .gap-h:hover, .gap-v:hover {
+            background: rgba(0, 240, 255, 0.3);
+            border: 1px dashed var(--p1);
+        }
+        
+        #connection-status {
+            color: var(--accent);
+            margin-top: 10px;
+            font-size: clamp(0.85em, 2vw, 0.95em);
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        #connection-status.error {
+            color: #ff4444;
+        }
+        
+        #connection-status.success {
+            color: var(--accent);
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            #setup {
+                margin-bottom: 15px;
+            }
+            
+            #game-container {
+                width: 100%;
+            }
+            
+            #board {
+                max-width: 100%;
+            }
+            
+            .wall-counter {
+                font-size: 0.8em;
+                padding: 6px 12px;
+            }
+        }
     </style>
 </head>
 <body>
 
-<h1>Neon Quoridor MVP</h1>
+<h1>⚡ NEON QUORIDOR</h1>
 
 <div id="setup">
-    <h3>1. Connect Players</h3>
+    <h3>🎮 Connect Players</h3>
     <div id="setup-start">
-        <p>Are you the Host or the Guest?</p>
-        <button class="primary" onclick="initHost()">I am HOST (Player 1)</button>
-        <button onclick="initGuest()">I am GUEST (Player 2)</button>
+        <p style="margin: 0 0 15px 0; color: var(--text-dim);">Are you the Host or the Guest?</p>
+        <button class="primary" onclick="initHost()">👑 I am HOST (Player 1)</button>
+        <button onclick="initGuest()">🎯 I am GUEST (Player 2)</button>
     </div>
 
     <div id="host-flow" class="hidden">
         <div class="step">
-            <p>1. Copy this code and send it to your friend:</p>
+            <p>📋 Step 1: Copy this code and send it to your friend:</p>
             <textarea id="host-offer" readonly>Generating...</textarea>
-            <button onclick="copyToClipboard('host-offer')">Copy Offer</button>
+            <button onclick="copyToClipboard('host-offer')">📋 Copy Offer</button>
         </div>
         <div class="step">
-            <p>2. Paste the code your friend sends back:</p>
+            <p>📋 Step 2: Paste the code your friend sends back:</p>
             <textarea id="host-answer-input" placeholder="Paste Guest's answer here..."></textarea>
-            <button class="primary" onclick="hostFinalize()">Start Game</button>
+            <button class="primary" onclick="hostFinalize()">▶️ Start Game</button>
         </div>
     </div>
 
     <div id="guest-flow" class="hidden">
         <div class="step">
-            <p>1. Paste the code from the Host:</p>
+            <p>📋 Step 1: Paste the code from the Host:</p>
             <textarea id="guest-offer-input" placeholder="Paste Host's offer here..."></textarea>
-            <button class="primary" onclick="guestProcessOffer()">Generate Answer</button>
+            <button class="primary" onclick="guestProcessOffer()">⚙️ Generate Answer</button>
         </div>
         <div class="step hidden" id="guest-answer-step">
-            <p>2. Copy this code and send it back to the Host:</p>
+            <p>📋 Step 2: Copy this code and send it back to the Host:</p>
             <textarea id="guest-answer" readonly></textarea>
-            <button onclick="copyToClipboard('guest-answer')">Copy Answer</button>
+            <button onclick="copyToClipboard('guest-answer')">📋 Copy Answer</button>
         </div>
     </div>
     
-    <div id="connection-status" style="color: yellow; margin-top: 10px;"></div>
+    <div id="connection-status"></div>
 </div>
 
 <div id="game-container" class="hidden">
-    <div id="status">Turn: <span id="turn-indicator">Player 1</span></div>
-    <div style="margin: 10px; font-size: 0.9em; color: #aaa;">Click cells to move. Click gaps to place walls.</div>
-    <div id="board">
-        </div>
+    <div id="status-bar">
+        <div id="status">Turn: <span id="turn-indicator">Player 1</span></div>
+        <div class="wall-counter p1" id="walls-p1">🧱 P1: 10</div>
+        <div class="wall-counter p2" id="walls-p2">🧱 P2: 10</div>
+    </div>
+    
+    <div class="instructions">
+        <div>👆 Tap cells to move • 🧱 Tap wall gaps to place walls</div>
+    </div>
+    
+    <div id="board"></div>
 </div>
 
 <script>
-/** * GAME LOGIC 
- */
 const BOARD_SIZE = 9;
-const CELL_SIZE = 40;
-const GAP_SIZE = 10;
 
 let state = {
     p1: { x: 4, y: 0, walls: 10 },
     p2: { x: 4, y: 8, walls: 10 },
-    walls: [], // {x, y, type: 'h'|'v'}
-    turn: 1, // 1 or 2
-    myPlayerId: null // 1 or 2
+    walls: [],
+    turn: 1,
+    myPlayerId: null
 };
 
-// Simple BFS to ensure path exists
+let boardScaling = { cellSize: 40, gapSize: 10 };
+
+function updateBoardScaling() {
+    const board = document.getElementById('board');
+    if (!board) return;
+    
+    const maxWidth = Math.min(520, window.innerWidth - 40);
+    const totalGap = 8 * Math.max(6, Math.floor(maxWidth * 0.02));
+    const availableSpace = maxWidth - 30 - totalGap;
+    boardScaling.cellSize = Math.floor(availableSpace / 9);
+    boardScaling.gapSize = Math.max(6, Math.floor(maxWidth * 0.02));
+}
+
+window.addEventListener('resize', () => {
+    updateBoardScaling();
+    if (!document.getElementById('setup').classList.contains('hidden') === false) {
+        renderBoard();
+    }
+});
+
 function hasPath(playerPos, targetRow, walls) {
     let queue = [playerPos];
     let visited = new Set();
@@ -173,25 +462,40 @@ function hasPath(playerPos, targetRow, walls) {
 }
 
 function isBlocked(x1, y1, x2, y2, walls) {
-    // Check if a wall blocks the path between adjacent cells
     for (let w of walls) {
         if (w.type === 'h') {
-            // Horizontal wall at (wx, wy) blocks movement between (wx, wy) and (wx, wy+1)
-            // It spans x to x+1
             if (y1 !== y2 && Math.min(y1, y2) === w.y && (x1 === w.x || x1 === w.x + 1)) return true;
         } else {
-            // Vertical wall at (wx, wy) blocks movement between (wx, wy) and (wx+1, wy)
             if (x1 !== x2 && Math.min(x1, x2) === w.x && (y1 === w.y || y1 === w.y + 1)) return true;
         }
     }
     return false;
 }
 
-function renderBoard() {
-    const board = document.getElementById('board');
-    board.innerHTML = ''; // Clear
+function getValidMoves(playerPos, walls) {
+    const moves = [];
+    const directions = [
+        {dx:0, dy:-1}, {dx:0, dy:1}, {dx:-1, dy:0}, {dx:1, dy:0}
+    ];
+    
+    for (let dir of directions) {
+        const nx = playerPos.x + dir.dx;
+        const ny = playerPos.y + dir.dy;
+        
+        if (nx >= 0 && nx < 9 && ny >= 0 && ny < 9) {
+            if (!isBlocked(playerPos.x, playerPos.y, nx, ny, walls)) {
+                moves.push({x: nx, y: ny});
+            }
+        }
+    }
+    return moves;
+}
 
-    // Render Cells
+function renderBoard() {
+    updateBoardScaling();
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+
     for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
             let d = document.createElement('div');
@@ -203,36 +507,34 @@ function renderBoard() {
         }
     }
 
-    // Render P1
+    const validMoves = state.turn === state.myPlayerId 
+        ? getValidMoves(state.turn === 1 ? state.p1 : state.p2, state.walls)
+        : [];
+    
+    validMoves.forEach(m => {
+        const cell = board.querySelector(`[data-x="${m.x}"][data-y="${m.y}"]`);
+        if (cell) cell.classList.add('valid-move');
+    });
+
     let p1 = document.createElement('div');
     p1.className = 'pawn p1';
     setPosition(p1, state.p1.x, state.p1.y);
     board.appendChild(p1);
 
-    // Render P2
     let p2 = document.createElement('div');
     p2.className = 'pawn p2';
     setPosition(p2, state.p2.x, state.p2.y);
     board.appendChild(p2);
 
-    // Render Walls
     state.walls.forEach(w => {
         let wd = document.createElement('div');
         wd.className = `wall ${w.type}`;
-        // Visual positioning logic
-        let left = w.x * (CELL_SIZE + GAP_SIZE);
-        let top = w.y * (CELL_SIZE + GAP_SIZE);
-        if (w.type === 'h') {
-            top += CELL_SIZE; 
-        } else {
-            left += CELL_SIZE; 
-        }
-        wd.style.left = left + 'px';
-        wd.style.top = top + 'px';
+        const pos = getCellPosition(w.x, w.y, w.type);
+        wd.style.left = pos.left + 'px';
+        wd.style.top = pos.top + 'px';
         board.appendChild(wd);
     });
 
-    // Render Clickable Wall Gaps (Only if it's my turn)
     if (state.turn === state.myPlayerId) {
         renderWallGaps(board);
     }
@@ -240,29 +542,53 @@ function renderBoard() {
     updateStatus();
 }
 
+function getCellPosition(x, y, type) {
+    const cellSize = boardScaling.cellSize;
+    const gapSize = boardScaling.gapSize;
+    const padding = 15;
+    
+    const baseX = padding + x * (cellSize + gapSize);
+    const baseY = padding + y * (cellSize + gapSize);
+    
+    if (type === 'h') {
+        return {
+            left: baseX,
+            top: baseY + cellSize + gapSize / 2 - (boardScaling.gapSize / 2)
+        };
+    } else {
+        return {
+            left: baseX + cellSize + gapSize / 2 - (boardScaling.gapSize / 2),
+            top: baseY
+        };
+    }
+}
+
 function renderWallGaps(board) {
-    // Horizontal Gaps (between rows)
+    const cellSize = boardScaling.cellSize;
+    const gapSize = boardScaling.gapSize;
+    const padding = 15;
+    
     for (let y = 0; y < 8; y++) {
         for (let x = 0; x < 8; x++) {
             let g = document.createElement('div');
             g.className = 'gap-h';
-            g.style.left = (x * (CELL_SIZE + GAP_SIZE)) + 'px';
-            g.style.top = (y * (CELL_SIZE + GAP_SIZE) + CELL_SIZE) + 'px';
-            g.style.width = (CELL_SIZE * 2 + GAP_SIZE) + 'px';
-            g.style.height = GAP_SIZE + 'px';
+            g.style.left = (padding + x * (cellSize + gapSize)) + 'px';
+            g.style.top = (padding + y * (cellSize + gapSize) + cellSize) + 'px';
+            g.style.width = (cellSize * 2 + gapSize) + 'px';
+            g.style.height = gapSize + 'px';
             g.onclick = () => handleWallClick(x, y, 'h');
             board.appendChild(g);
         }
     }
-    // Vertical Gaps (between cols)
+    
     for (let y = 0; y < 8; y++) {
         for (let x = 0; x < 8; x++) {
             let g = document.createElement('div');
             g.className = 'gap-v';
-            g.style.left = (x * (CELL_SIZE + GAP_SIZE) + CELL_SIZE) + 'px';
-            g.style.top = (y * (CELL_SIZE + GAP_SIZE)) + 'px';
-            g.style.width = GAP_SIZE + 'px';
-            g.style.height = (CELL_SIZE * 2 + GAP_SIZE) + 'px';
+            g.style.left = (padding + x * (cellSize + gapSize) + cellSize) + 'px';
+            g.style.top = (padding + y * (cellSize + gapSize)) + 'px';
+            g.style.width = gapSize + 'px';
+            g.style.height = (cellSize * 2 + gapSize) + 'px';
             g.onclick = () => handleWallClick(x, y, 'v');
             board.appendChild(g);
         }
@@ -270,18 +596,33 @@ function renderWallGaps(board) {
 }
 
 function setPosition(el, x, y) {
-    el.style.left = (x * (CELL_SIZE + GAP_SIZE) + 5) + 'px';
-    el.style.top = (y * (CELL_SIZE + GAP_SIZE) + 5) + 'px';
+    const cellSize = boardScaling.cellSize;
+    const gapSize = boardScaling.gapSize;
+    const padding = 15;
+    
+    const boardX = padding + x * (cellSize + gapSize);
+    const boardY = padding + y * (cellSize + gapSize);
+    
+    el.style.left = boardX + 'px';
+    el.style.top = boardY + 'px';
+    el.style.width = cellSize + 'px';
+    el.style.height = cellSize + 'px';
 }
 
 function updateStatus() {
     const ind = document.getElementById('turn-indicator');
-    ind.innerText = state.turn === 1 ? "Player 1 (Blue)" : "Player 2 (Pink)";
-    ind.style.color = state.turn === 1 ? "var(--p1)" : "var(--p2)";
+    const playerName = state.turn === 1 ? "🔵 Player 1" : "🔴 Player 2";
+    let text = playerName;
     
     if(state.turn === state.myPlayerId) {
-        ind.innerText += " - YOUR TURN";
+        text += " ⭐ YOUR TURN";
     }
+    
+    ind.innerText = text;
+    ind.style.color = state.turn === 1 ? "var(--p1)" : "var(--p2)";
+    
+    document.getElementById('walls-p1').innerText = `🧱 P1: ${state.p1.walls}`;
+    document.getElementById('walls-p2').innerText = `🧱 P2: ${state.p2.walls}`;
 }
 
 function handleMoveClick(x, y) {
@@ -290,8 +631,6 @@ function handleMoveClick(x, y) {
     const me = state.turn === 1 ? state.p1 : state.p2;
     const dist = Math.abs(me.x - x) + Math.abs(me.y - y);
 
-    // Basic move validation (1 step)
-    // TODO: Add jump logic for full Quoridor rules
     if (dist === 1 && !isBlocked(me.x, me.y, x, y, state.walls)) {
         sendMove({ type: 'MOVE', x, y });
     }
@@ -300,20 +639,28 @@ function handleMoveClick(x, y) {
 function handleWallClick(x, y, type) {
     if (state.turn !== state.myPlayerId) return;
     
-    // Check if wall overlaps
+    const me = state.turn === 1 ? state.p1 : state.p2;
+    if (me.walls <= 0) {
+        alert("No walls left!");
+        return;
+    }
+    
     const overlap = state.walls.some(w => {
-        if (w.x === x && w.y === y) return true; // Exact match
-        if (type === 'h' && w.type === 'h' && w.y === y && Math.abs(w.x - x) <= 1) return true; // Overlap H
-        if (type === 'v' && w.type === 'v' && w.x === x && Math.abs(w.y - y) <= 1) return true; // Overlap V
+        if (w.x === x && w.y === y) return true;
+        if (type === 'h' && w.type === 'h' && w.y === y && Math.abs(w.x - x) <= 1) return true;
+        if (type === 'v' && w.type === 'v' && w.x === x && Math.abs(w.y - y) <= 1) return true;
         return false;
     });
 
-    if (overlap) return alert("Wall blocked!");
+    if (overlap) {
+        alert("⚠️ Wall overlaps!");
+        return;
+    }
 
-    // Check if path still exists for both
     const testWalls = [...state.walls, {x, y, type}];
     if (!hasPath(state.p1, 8, testWalls) || !hasPath(state.p2, 0, testWalls)) {
-        return alert("Cannot block path to goal!");
+        alert("⚠️ Cannot block path to goal!");
+        return;
     }
 
     sendMove({ type: 'WALL', x, y, wallType: type });
@@ -326,19 +673,23 @@ function applyMove(data) {
         p.y = data.y;
     } else if (data.type === 'WALL') {
         state.walls.push({ x: data.x, y: data.y, type: data.wallType });
+        const me = state.turn === 1 ? state.p1 : state.p2;
+        me.walls--;
     }
     
-    // Check Win
-    if (state.p1.y === 8) alert("Player 1 Wins!");
-    if (state.p2.y === 0) alert("Player 2 Wins!");
+    if (state.p1.y === 8) {
+        alert("🎉 Player 1 Wins!");
+        location.reload();
+    }
+    if (state.p2.y === 0) {
+        alert("🎉 Player 2 Wins!");
+        location.reload();
+    }
 
     state.turn = state.turn === 1 ? 2 : 1;
     renderBoard();
 }
 
-/**
- * WEBRTC NETWORKING (No External Libs)
- */
 let pc, dataChannel;
 const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
@@ -361,8 +712,13 @@ function initHost() {
 }
 
 function hostFinalize() {
-    const answer = JSON.parse(document.getElementById('host-answer-input').value);
-    pc.setRemoteDescription(answer);
+    try {
+        const answer = JSON.parse(document.getElementById('host-answer-input').value);
+        pc.setRemoteDescription(answer);
+        setStatus("✅ Connection established!", "success");
+    } catch (e) {
+        setStatus("❌ Invalid answer code!", "error");
+    }
 }
 
 function initGuest() {
@@ -385,15 +741,27 @@ function initGuest() {
 }
 
 function guestProcessOffer() {
-    const offer = JSON.parse(document.getElementById('guest-offer-input').value);
-    pc.setRemoteDescription(offer);
-    pc.createAnswer().then(d => pc.setLocalDescription(d));
+    try {
+        const offer = JSON.parse(document.getElementById('guest-offer-input').value);
+        pc.setRemoteDescription(offer);
+        pc.createAnswer().then(d => pc.setLocalDescription(d));
+        setStatus("⏳ Waiting for host...", "success");
+    } catch (e) {
+        setStatus("❌ Invalid offer code!", "error");
+    }
+}
+
+function setStatus(msg, cls) {
+    const el = document.getElementById('connection-status');
+    el.innerText = msg;
+    el.className = cls;
 }
 
 function setupChannel(channel) {
     channel.onopen = () => {
         document.getElementById('setup').classList.add('hidden');
         document.getElementById('game-container').classList.remove('hidden');
+        updateBoardScaling();
         renderBoard();
     };
     channel.onmessage = e => {
@@ -404,16 +772,15 @@ function setupChannel(channel) {
 }
 
 function sendMove(moveData) {
-    applyMove(moveData); // Update local
-    dataChannel.send(JSON.stringify(moveData)); // Send to peer
+    applyMove(moveData);
+    dataChannel.send(JSON.stringify(moveData));
 }
 
-// Utility
 function copyToClipboard(id) {
     const el = document.getElementById(id);
     el.select();
     document.execCommand('copy');
-    alert("Copied to clipboard!");
+    alert("✅ Copied to clipboard!");
 }
 </script>
 </body>
