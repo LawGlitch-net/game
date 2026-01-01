@@ -8,21 +8,20 @@
         * { box-sizing: border-box; }
         
         :root {
-            --bg: #faf8f3;
-            --bg-secondary: #f5f0ea;
-            --grid: #e8dfd7;
-            --p1: #ff9fbf;
-            --p2: #ffb366;
-            --wall: #d4a5a5;
-            --text: #6b5b52;
-            --text-dim: #9a8f88;
-            --accent: #ffb6d9;
-            --border: #d4c4b8;
+            --bg: #fff0f5;
+            --bg-secondary: #ffe8f0;
+            --grid: #ddb5c9;
+            --p1: #ff66b2;
+            --p2: #ff9933;
+            --wall: #c85a75;
+            --text: #5c3a47;
+            --text-dim: #8b6b7b;
+            --border: #d4a5b5;
         }
         
         body {
             font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg) 0%, #fff5f0 100%);
+            background: linear-gradient(135deg, var(--bg) 0%, #ffd9e8 100%);
             color: var(--text);
             display: flex;
             flex-direction: column;
@@ -38,20 +37,20 @@
             font-size: clamp(2em, 6vw, 3em);
             color: var(--p1);
             font-weight: 900;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 2px 2px 8px rgba(255, 102, 178, 0.3);
             letter-spacing: 2px;
         }
         
         /* CONNECTION UI */
         #setup {
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 182, 217, 0.15) 100%);
+            background: linear-gradient(135deg, #fff5fa 0%, #fff0f5 100%);
             padding: clamp(15px, 4vw, 25px);
             border-radius: 16px;
             border: 3px solid var(--border);
             width: 100%;
             max-width: 500px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 24px rgba(255, 159, 191, 0.15);
+            box-shadow: 0 8px 24px rgba(255, 102, 178, 0.2);
         }
         
         #setup h3 {
@@ -84,7 +83,7 @@
             padding: 15px;
             border-left: 4px solid var(--p1);
             border-radius: 8px;
-            background: rgba(255, 159, 191, 0.08);
+            background: rgba(255, 102, 178, 0.1);
         }
         
         .step p {
@@ -110,7 +109,7 @@
         button {
             cursor: pointer;
             padding: clamp(10px, 2vw, 12px) clamp(16px, 3vw, 24px);
-            background: linear-gradient(135deg, #e8b8d8 0%, #f0c8e0 100%);
+            background: linear-gradient(135deg, #ff7fc9 0%, #ff99d8 100%);
             color: white;
             border: 2px solid var(--p1);
             border-radius: 10px;
@@ -119,24 +118,24 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(255, 159, 191, 0.2);
+            box-shadow: 0 4px 12px rgba(255, 102, 178, 0.3);
         }
         
         button:hover {
-            background: linear-gradient(135deg, #ffadd8 0%, #ffc0e0 100%);
+            background: linear-gradient(135deg, #ff66b2 0%, #ff88cc 100%);
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(255, 159, 191, 0.3);
+            box-shadow: 0 6px 16px rgba(255, 102, 178, 0.4);
         }
         
         button.primary {
-            background: linear-gradient(135deg, var(--p1) 0%, #ffb3d9 100%);
+            background: linear-gradient(135deg, var(--p1) 0%, #ff88cc 100%);
             color: white;
-            border-color: #ff7fa8;
+            border-color: #ff3385;
         }
         
         button.primary:hover {
-            background: linear-gradient(135deg, #ffb3d9 0%, #ffcce5 100%);
-            box-shadow: 0 6px 20px rgba(255, 159, 191, 0.4);
+            background: linear-gradient(135deg, #ff4da6 0%, #ff99d8 100%);
+            box-shadow: 0 6px 20px rgba(255, 102, 178, 0.5);
         }
         
         .hidden { display: none !important; }
@@ -158,12 +157,12 @@
             align-items: center;
             margin-bottom: 15px;
             padding: 15px;
-            background: linear-gradient(90deg, rgba(255, 159, 191, 0.15) 0%, rgba(255, 179, 102, 0.15) 100%);
+            background: linear-gradient(90deg, rgba(255, 102, 178, 0.2) 0%, rgba(255, 153, 51, 0.2) 100%);
             border-radius: 12px;
             border: 2px solid var(--border);
             flex-wrap: wrap;
             gap: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         #status {
@@ -176,6 +175,7 @@
             color: var(--p1);
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: 900;
         }
         
         .wall-counter {
@@ -183,12 +183,12 @@
             align-items: center;
             gap: 8px;
             padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
             border: 2px solid currentColor;
             font-size: clamp(0.85em, 2vw, 0.95em);
             font-weight: 700;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         .wall-counter.p1 {
@@ -201,88 +201,92 @@
         
         .instructions {
             text-align: center;
-            color: var(--text-dim);
+            color: var(--text);
             font-size: clamp(0.8em, 2vw, 0.9em);
             margin-bottom: 15px;
             line-height: 1.5;
+            font-weight: 600;
         }
         
         /* GAME BOARD */
         #board {
-            display: grid;
+            display: inline-grid;
             grid-template-columns: repeat(9, 1fr);
             grid-template-rows: repeat(9, 1fr);
-            gap: clamp(4px, 1.5vw, 8px);
-            background: linear-gradient(135deg, #fff9f5 0%, #fff5f0 100%);
-            padding: clamp(10px, 2vw, 15px);
+            gap: clamp(3px, 1.2vw, 6px);
+            background: linear-gradient(135deg, #fff5fa 0%, #ffe8f0 100%);
+            padding: clamp(12px, 2.5vw, 18px);
             border: 4px solid var(--border);
             border-radius: 16px;
             position: relative;
             width: 100%;
-            aspect-ratio: 1;
             max-width: 520px;
-            box-shadow: 0 8px 32px rgba(255, 159, 191, 0.12), inset 0 0 20px rgba(255, 255, 255, 0.5);
+            aspect-ratio: 1;
+            box-shadow: 0 8px 32px rgba(255, 102, 178, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.6);
         }
         
         .cell {
             width: 100%;
             aspect-ratio: 1;
-            background: linear-gradient(135deg, #fff5f0 0%, #fff0eb 100%);
+            background: linear-gradient(135deg, #fff8fc 0%, #fff2f7 100%);
             border-radius: 10px;
             position: relative;
             cursor: pointer;
             border: 2px solid var(--grid);
             transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .cell:hover {
-            background: linear-gradient(135deg, #ffecef 0%, #ffe5e8 100%);
+            background: linear-gradient(135deg, #ffe8f5 0%, #ffd9ed 100%);
             border-color: var(--p1);
-            box-shadow: 0 0 8px rgba(255, 159, 191, 0.2);
+            box-shadow: 0 0 8px rgba(255, 102, 178, 0.25);
         }
         
         .cell.valid-move {
-            background: linear-gradient(135deg, rgba(255, 179, 102, 0.3) 0%, rgba(255, 159, 191, 0.2) 100%);
+            background: linear-gradient(135deg, rgba(255, 153, 51, 0.35) 0%, rgba(255, 102, 178, 0.25) 100%);
             border: 2px solid var(--p2);
-            box-shadow: inset 0 0 8px rgba(255, 179, 102, 0.2), 0 0 12px rgba(255, 159, 191, 0.25);
+            box-shadow: inset 0 0 8px rgba(255, 153, 51, 0.2), 0 0 12px rgba(255, 102, 178, 0.3);
         }
         
         /* PAWNS */
         .pawn {
-            font-size: clamp(20px, 5vw, 36px);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: clamp(24px, 6vw, 40px);
             z-index: 10;
-            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: move;
         }
         
         .pawn:hover {
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
-            transform: translate(-50%, -50%) scale(1.1);
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+            transform: scale(1.15);
         }
         
         /* WALLS */
         .wall {
             position: absolute;
-            background: linear-gradient(90deg, var(--wall) 0%, #e0b8b8 100%);
-            box-shadow: 0 2px 6px rgba(212, 165, 165, 0.4);
+            background: linear-gradient(90deg, var(--wall) 0%, #d97a8f 100%);
+            box-shadow: 0 2px 6px rgba(200, 90, 117, 0.5);
             z-index: 5;
-            border-radius: 3px;
-            pointer-events: none;
-            border: 1px solid #c99a9a;
+            border-radius: 2px;
+            border: 1px solid #a83d5a;
         }
         
         .wall.h {
-            height: clamp(4px, 0.8vw, 7px);
+            height: clamp(4px, 1vw, 8px);
             width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
         }
         
         .wall.v {
-            width: clamp(4px, 0.8vw, 7px);
+            width: clamp(4px, 1vw, 8px);
             height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
         }
         
         /* GHOST WALLS */
@@ -296,7 +300,7 @@
         }
         
         .gap-h:hover, .gap-v:hover {
-            background: rgba(255, 179, 102, 0.4);
+            background: rgba(255, 153, 51, 0.5);
             border: 2px dashed var(--p2);
         }
         
@@ -309,11 +313,13 @@
         }
         
         #connection-status.error {
-            color: #d97171;
+            color: #c85a75;
+            font-weight: 700;
         }
         
         #connection-status.success {
-            color: #a8d5a8;
+            color: #ff9933;
+            font-weight: 700;
         }
         
         @media (max-width: 600px) {
@@ -323,14 +329,6 @@
             
             #setup {
                 margin-bottom: 15px;
-            }
-            
-            #game-container {
-                width: 100%;
-            }
-            
-            #board {
-                max-width: 100%;
             }
         }
     </style>
@@ -384,7 +382,7 @@
     </div>
     
     <div class="instructions">
-        <div>👆 Tap to move • 🧱 Tap gaps between cells to place walls</div>
+        <div>👆 Tap to move • 🧱 Tap gaps to place walls</div>
     </div>
     
     <div id="board"></div>
@@ -403,21 +401,7 @@ let state = {
 
 let boardScaling = { cellSize: 40, gapSize: 10 };
 
-function updateBoardScaling() {
-    const board = document.getElementById('board');
-    if (!board) return;
-    
-    const maxWidth = Math.min(520, window.innerWidth - 40);
-    const gapSize = Math.max(4, Math.floor(maxWidth * 0.015));
-    const totalGaps = 8 * gapSize;
-    const padding = 30;
-    const availableSpace = maxWidth - padding - totalGaps;
-    boardScaling.cellSize = Math.floor(availableSpace / 9);
-    boardScaling.gapSize = gapSize;
-}
-
 window.addEventListener('resize', () => {
-    updateBoardScaling();
     if (!document.getElementById('setup').classList.contains('hidden') === false) {
         renderBoard();
     }
@@ -479,15 +463,7 @@ function getValidMoves(playerPos, walls) {
     return moves;
 }
 
-function getGridPosition(x, y) {
-    const padding = 15;
-    const left = padding + x * (boardScaling.cellSize + boardScaling.gapSize);
-    const top = padding + y * (boardScaling.cellSize + boardScaling.gapSize);
-    return { left, top };
-}
-
 function renderBoard() {
-    updateBoardScaling();
     const board = document.getElementById('board');
     board.innerHTML = '';
 
@@ -497,10 +473,7 @@ function renderBoard() {
             d.className = 'cell';
             d.dataset.x = x;
             d.dataset.y = y;
-            d.dataset.index = y * 9 + x;
             d.onclick = () => handleMoveClick(x, y);
-            d.style.gridColumn = x + 1;
-            d.style.gridRow = y + 1;
             board.appendChild(d);
         }
     }
@@ -514,35 +487,52 @@ function renderBoard() {
         if (cell) cell.classList.add('valid-move');
     });
 
-    let p1 = document.createElement('div');
-    p1.className = 'pawn';
-    p1.innerText = '😸';
-    p1.style.gridColumn = state.p1.x + 1;
-    p1.style.gridRow = state.p1.y + 1;
-    board.appendChild(p1);
+    let p1Cell = board.querySelector(`[data-x="${state.p1.x}"][data-y="${state.p1.y}"]`);
+    if (p1Cell) {
+        let p1 = document.createElement('div');
+        p1.className = 'pawn';
+        p1.innerText = '😸';
+        p1.style.pointerEvents = 'none';
+        p1Cell.appendChild(p1);
+    }
 
-    let p2 = document.createElement('div');
-    p2.className = 'pawn';
-    p2.innerText = '😻';
-    p2.style.gridColumn = state.p2.x + 1;
-    p2.style.gridRow = state.p2.y + 1;
-    board.appendChild(p2);
+    let p2Cell = board.querySelector(`[data-x="${state.p2.x}"][data-y="${state.p2.y}"]`);
+    if (p2Cell) {
+        let p2 = document.createElement('div');
+        p2.className = 'pawn';
+        p2.innerText = '😻';
+        p2.style.pointerEvents = 'none';
+        p2Cell.appendChild(p2);
+    }
 
     state.walls.forEach(w => {
-        let wd = document.createElement('div');
-        wd.className = `wall ${w.type}`;
+        let wallEl = document.createElement('div');
+        wallEl.className = `wall ${w.type}`;
+        
+        let cellX = w.x;
+        let cellY = w.y;
         
         if (w.type === 'h') {
-            wd.style.gridColumn = (w.x + 1) + ' / span 2';
-            wd.style.gridRow = (w.y + 1) + ' / span 1';
-            wd.style.gridRowStart = w.y + 1.5;
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                wallEl.style.width = 'calc(200% + var(--gap-size))';
+                wallEl.style.height = 'clamp(4px, 1vw, 8px)';
+                wallEl.style.left = 'calc(-100% - calc(var(--gap-size) / 2))';
+                wallEl.style.top = '100%';
+                wallEl.style.marginTop = 'calc(var(--gap-size) / -2)';
+                targetCell.appendChild(wallEl);
+            }
         } else {
-            wd.style.gridColumn = (w.x + 1) + ' / span 1';
-            wd.style.gridRow = (w.y + 1) + ' / span 2';
-            wd.style.gridColumnStart = w.x + 1.5;
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                wallEl.style.width = 'clamp(4px, 1vw, 8px)';
+                wallEl.style.height = 'calc(200% + var(--gap-size))';
+                wallEl.style.left = '100%';
+                wallEl.style.top = 'calc(-100% - calc(var(--gap-size) / 2))';
+                wallEl.style.marginLeft = 'calc(var(--gap-size) / -2)';
+                targetCell.appendChild(wallEl);
+            }
         }
-        
-        board.appendChild(wd);
     });
 
     if (state.turn === state.myPlayerId) {
@@ -553,24 +543,25 @@ function renderBoard() {
 }
 
 function renderWallGaps(board) {
-    const cellSize = boardScaling.cellSize;
-    const gapSize = boardScaling.gapSize;
-    const padding = 15;
-    
     for (let y = 0; y < 8; y++) {
         for (let x = 0; x < 8; x++) {
             let g = document.createElement('div');
             g.className = 'gap-h';
-            g.style.gridColumn = (x + 1) + ' / span 2';
-            g.style.gridRow = (y + 1) + ' / span 1';
-            g.style.gridRowStart = y + 1.5;
-            g.style.height = gapSize + 'px';
             g.style.cursor = 'pointer';
             g.onclick = (e) => {
                 e.stopPropagation();
                 handleWallClick(x, y, 'h');
             };
-            board.appendChild(g);
+            
+            let cell = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell) {
+                g.style.width = 'calc(200% + var(--gap-size))';
+                g.style.height = 'var(--gap-size)';
+                g.style.left = 'calc(-100% - calc(var(--gap-size) / 2))';
+                g.style.top = '100%';
+                g.style.marginTop = 'calc(var(--gap-size) / -2)';
+                cell.appendChild(g);
+            }
         }
     }
     
@@ -578,16 +569,21 @@ function renderWallGaps(board) {
         for (let x = 0; x < 8; x++) {
             let g = document.createElement('div');
             g.className = 'gap-v';
-            g.style.gridColumn = (x + 1) + ' / span 1';
-            g.style.gridRow = (y + 1) + ' / span 2';
-            g.style.gridColumnStart = x + 1.5;
-            g.style.width = gapSize + 'px';
             g.style.cursor = 'pointer';
             g.onclick = (e) => {
                 e.stopPropagation();
                 handleWallClick(x, y, 'v');
             };
-            board.appendChild(g);
+            
+            let cell = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+            if (cell) {
+                g.style.width = 'var(--gap-size)';
+                g.style.height = 'calc(200% + var(--gap-size))';
+                g.style.left = '100%';
+                g.style.top = 'calc(-100% - calc(var(--gap-size) / 2))';
+                g.style.marginLeft = 'calc(var(--gap-size) / -2)';
+                cell.appendChild(g);
+            }
         }
     }
 }
@@ -636,13 +632,13 @@ function handleWallClick(x, y, type) {
     });
 
     if (overlap) {
-        alert("⚠️ Wall already there!");
+        alert("Wall already there!");
         return;
     }
 
     const testWalls = [...state.walls, {x, y, type}];
     if (!hasPath(state.p1, 8, testWalls) || !hasPath(state.p2, 0, testWalls)) {
-        alert("⚠️ Can't block the path!");
+        alert("Can't block the path!");
         return;
     }
 
@@ -744,7 +740,6 @@ function setupChannel(channel) {
     channel.onopen = () => {
         document.getElementById('setup').classList.add('hidden');
         document.getElementById('game-container').classList.remove('hidden');
-        updateBoardScaling();
         renderBoard();
     };
     channel.onmessage = e => {
@@ -765,6 +760,3 @@ function copyToClipboard(id) {
     document.execCommand('copy');
     alert("✅ Copied!");
 }
-</script>
-</body>
-</html>
