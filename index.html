@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purridor - Cat Path Game</title>
+    <title>Meow Meow - Cat Path Game</title>
     <style>
         * { box-sizing: border-box; }
         
@@ -322,6 +322,64 @@
             font-weight: 700;
         }
         
+        /* WALL CONTROLLER */
+        #wall-controller {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(255, 102, 178, 0.15) 0%, rgba(255, 153, 51, 0.15) 100%);
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            text-align: center;
+        }
+        
+        #wall-controller.active {
+            display: block;
+        }
+        
+        #wall-controller h3 {
+            margin: 0 0 10px 0;
+            color: var(--wall);
+            font-size: 1em;
+        }
+        
+        .controller-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .controller-buttons button {
+            padding: 10px 16px;
+            font-size: 0.85em;
+            min-width: 60px;
+        }
+        
+        .controller-buttons button.rotate {
+            background: linear-gradient(135deg, #ff9933 0%, #ffaa55 100%);
+            border-color: #ff7700;
+        }
+        
+        .controller-buttons button.deploy {
+            background: linear-gradient(135deg, #66ff66 0%, #88ff88 100%);
+            border-color: #33cc33;
+            color: #000;
+            font-weight: 900;
+        }
+        
+        .controller-buttons button.cancel {
+            background: linear-gradient(135deg, #cc6666 0%, #dd8888 100%);
+            border-color: #aa3333;
+        }
+        
+        .wall-preview {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        
         @media (max-width: 600px) {
             body {
                 padding: 8px;
@@ -335,7 +393,7 @@
 </head>
 <body>
 
-<h1>🐱 Purridor 🐱</h1>
+<h1>🐱 Mitti Mitti 🐱</h1>
 
 <div id="setup">
     <h3>Choose Your Player</h3>
@@ -382,7 +440,25 @@
     </div>
     
     <div class="instructions">
-        <div>👆 Tap to move • 🧱 Tap gaps to place walls</div>
+        <div id="instructions-text">👆 Tap to move • 🧱 Click button to place walls</div>
+    </div>
+    
+    <button id="place-wall-btn" onclick="startWallPlacement()" style="display: block; margin: 0 auto 15px; padding: 12px 24px; background: linear-gradient(135deg, #ff9933 0%, #ffaa55 100%); color: white; border: 2px solid #ff7700; border-radius: 10px; font-weight: 700; font-size: 0.95em; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 153, 51, 0.3);">
+        🧱 Place Wall
+    </button>
+    
+    <div id="wall-controller">
+        <h3>🎮 Wall Controller</h3>
+        <div class="wall-preview" id="wall-preview">Horizontal • Position: (0,0)</div>
+        <div class="controller-buttons">
+            <button onclick="moveWall(-1, 0)">← Move Left</button>
+            <button onclick="moveWall(1, 0)">Move Right →</button>
+            <button onclick="moveWall(0, -1)">↑ Move Up</button>
+            <button onclick="moveWall(0, 1)">Move Down ↓</button>
+            <button class="rotate" onclick="rotateWall()">🔄 Rotate</button>
+            <button class="deploy" onclick="deployWall()">✓ Deploy</button>
+            <button class="cancel" onclick="cancelWallPlacement()">✕ Cancel</button>
+        </div>
     </div>
     
     <div id="board"></div>
@@ -397,6 +473,13 @@ let state = {
     walls: [],
     turn: 1,
     myPlayerId: null
+};
+
+let wallPlacing = {
+    active: false,
+    x: 0,
+    y: 0,
+    type: 'h'
 };
 
 let boardScaling = { cellSize: 40, gapSize: 10 };
@@ -461,6 +544,79 @@ function getValidMoves(playerPos, walls) {
         }
     }
     return moves;
+}
+
+function startWallPlacement() {
+    if (state.turn !== state.myPlayerId) return;
+    const me = state.turn === 1 ? state.p1 : state.p2;
+    if (me.walls <= 0) {
+        alert("No walls left!");
+        return;
+    }
+    wallPlacing.active = true;
+    wallPlacing.x = 0;
+    wallPlacing.y = 0;
+    wallPlacing.type = 'h';
+    document.getElementById('wall-controller').classList.add('active');
+    document.getElementById('place-wall-btn').style.display = 'none';
+    updateWallPreview();
+    renderBoard();
+}
+
+function moveWall(dx, dy) {
+    wallPlacing.x = Math.max(0, Math.min(8, wallPlacing.x + dx));
+    wallPlacing.y = Math.max(0, Math.min(8, wallPlacing.y + dy));
+    updateWallPreview();
+    renderBoard();
+}
+
+function rotateWall() {
+    wallPlacing.type = wallPlacing.type === 'h' ? 'v' : 'h';
+    wallPlacing.x = Math.min(wallPlacing.x, 8);
+    wallPlacing.y = Math.min(wallPlacing.y, 8);
+    updateWallPreview();
+    renderBoard();
+}
+
+function updateWallPreview() {
+    const typeStr = wallPlacing.type === 'h' ? 'Horizontal' : 'Vertical';
+    document.getElementById('wall-preview').innerText = `${typeStr} • Position: (${wallPlacing.x}, ${wallPlacing.y})`;
+}
+
+function deployWall() {
+    const me = state.turn === 1 ? state.p1 : state.p2;
+    if (me.walls <= 0) {
+        alert("No walls left!");
+        return;
+    }
+    
+    const overlap = state.walls.some(w => {
+        if (w.x === wallPlacing.x && w.y === wallPlacing.y && w.type === wallPlacing.type) return true;
+        if (wallPlacing.type === 'h' && w.type === 'h' && w.y === wallPlacing.y && Math.abs(w.x - wallPlacing.x) <= 1) return true;
+        if (wallPlacing.type === 'v' && w.type === 'v' && w.x === wallPlacing.x && Math.abs(w.y - wallPlacing.y) <= 1) return true;
+        return false;
+    });
+
+    if (overlap) {
+        alert("Wall already there!");
+        return;
+    }
+
+    const testWalls = [...state.walls, {x: wallPlacing.x, y: wallPlacing.y, type: wallPlacing.type}];
+    if (!hasPath(state.p1, 8, testWalls) || !hasPath(state.p2, 0, testWalls)) {
+        alert("Can't block the path!");
+        return;
+    }
+
+    sendMove({ type: 'WALL', x: wallPlacing.x, y: wallPlacing.y, wallType: wallPlacing.type });
+    cancelWallPlacement();
+}
+
+function cancelWallPlacement() {
+    wallPlacing.active = false;
+    document.getElementById('wall-controller').classList.remove('active');
+    document.getElementById('place-wall-btn').style.display = 'block';
+    renderBoard();
 }
 
 function renderBoard() {
@@ -535,58 +691,45 @@ function renderBoard() {
         }
     });
 
-    if (state.turn === state.myPlayerId) {
+    if (wallPlacing.active) {
+        let previewWall = document.createElement('div');
+        previewWall.className = `wall ${wallPlacing.type}`;
+        previewWall.style.opacity = '0.6';
+        
+        let cellX = wallPlacing.x;
+        let cellY = wallPlacing.y;
+        
+        if (wallPlacing.type === 'h') {
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                previewWall.style.width = 'calc(200% + var(--gap-size))';
+                previewWall.style.height = 'clamp(4px, 1vw, 8px)';
+                previewWall.style.left = 'calc(-100% - calc(var(--gap-size) / 2))';
+                previewWall.style.top = '100%';
+                previewWall.style.marginTop = 'calc(var(--gap-size) / -2)';
+                targetCell.appendChild(previewWall);
+            }
+        } else {
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                previewWall.style.width = 'clamp(4px, 1vw, 8px)';
+                previewWall.style.height = 'calc(200% + var(--gap-size))';
+                previewWall.style.left = '100%';
+                previewWall.style.top = 'calc(-100% - calc(var(--gap-size) / 2))';
+                previewWall.style.marginLeft = 'calc(var(--gap-size) / -2)';
+                targetCell.appendChild(previewWall);
+            }
+        }
+    }
+
+    if (state.turn === state.myPlayerId && !wallPlacing.active) {
         renderWallGaps(board);
     }
     
     updateStatus();
 }
 
-function renderWallGaps(board) {
-    for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-            let g = document.createElement('div');
-            g.className = 'gap-h';
-            g.style.cursor = 'pointer';
-            g.onclick = (e) => {
-                e.stopPropagation();
-                handleWallClick(x, y, 'h');
-            };
-            
-            let cell = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
-            if (cell) {
-                g.style.width = 'calc(200% + var(--gap-size))';
-                g.style.height = 'var(--gap-size)';
-                g.style.left = 'calc(-100% - calc(var(--gap-size) / 2))';
-                g.style.top = '100%';
-                g.style.marginTop = 'calc(var(--gap-size) / -2)';
-                cell.appendChild(g);
-            }
-        }
-    }
-    
-    for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-            let g = document.createElement('div');
-            g.className = 'gap-v';
-            g.style.cursor = 'pointer';
-            g.onclick = (e) => {
-                e.stopPropagation();
-                handleWallClick(x, y, 'v');
-            };
-            
-            let cell = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
-            if (cell) {
-                g.style.width = 'var(--gap-size)';
-                g.style.height = 'calc(200% + var(--gap-size))';
-                g.style.left = '100%';
-                g.style.top = 'calc(-100% - calc(var(--gap-size) / 2))';
-                g.style.marginLeft = 'calc(var(--gap-size) / -2)';
-                cell.appendChild(g);
-            }
-        }
-    }
-}
+function renderWallGaps(board) {}
 
 function updateStatus() {
     const ind = document.getElementById('turn-indicator');
@@ -615,35 +758,7 @@ function handleMoveClick(x, y) {
     }
 }
 
-function handleWallClick(x, y, type) {
-    if (state.turn !== state.myPlayerId) return;
-    
-    const me = state.turn === 1 ? state.p1 : state.p2;
-    if (me.walls <= 0) {
-        alert("No walls left!");
-        return;
-    }
-    
-    const overlap = state.walls.some(w => {
-        if (w.x === x && w.y === y && w.type === type) return true;
-        if (type === 'h' && w.type === 'h' && w.y === y && Math.abs(w.x - x) <= 1) return true;
-        if (type === 'v' && w.type === 'v' && w.x === x && Math.abs(w.y - y) <= 1) return true;
-        return false;
-    });
 
-    if (overlap) {
-        alert("Wall already there!");
-        return;
-    }
-
-    const testWalls = [...state.walls, {x, y, type}];
-    if (!hasPath(state.p1, 8, testWalls) || !hasPath(state.p2, 0, testWalls)) {
-        alert("Can't block the path!");
-        return;
-    }
-
-    sendMove({ type: 'WALL', x, y, wallType: type });
-}
 
 function applyMove(data) {
     if (data.type === 'MOVE') {
@@ -654,6 +769,7 @@ function applyMove(data) {
         state.walls.push({ x: data.x, y: data.y, type: data.wallType });
         const me = state.turn === 1 ? state.p1 : state.p2;
         me.walls--;
+        cancelWallPlacement();
     }
     
     if (state.p1.y === 8) {
