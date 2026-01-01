@@ -17,6 +17,7 @@
             --text: #5c3a47;
             --text-dim: #8b6b7b;
             --border: #d4a5b5;
+            --grid-gap: clamp(3px, 1.2vw, 6px);
         }
         
         body {
@@ -213,7 +214,7 @@
             display: inline-grid;
             grid-template-columns: repeat(9, 1fr);
             grid-template-rows: repeat(9, 1fr);
-            gap: clamp(3px, 1.2vw, 6px);
+            gap: var(--grid-gap);
             background: linear-gradient(135deg, #fff5fa 0%, #ffe8f0 100%);
             padding: clamp(12px, 2.5vw, 18px);
             border: 4px solid var(--border);
@@ -265,16 +266,28 @@
             transform: scale(1.15);
         }
         
-        /* WALLS */
-        .wall-block {
-            grid-column: span 1;
-            grid-row: span 1;
-            background: linear-gradient(135deg, var(--wall) 0%, #d97a8f 100%);
-            border: 2px solid #a83d5a;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(200, 90, 117, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+        /* WALLS - placed in gaps between cells */
+        .wall {
+            position: absolute;
+            background: linear-gradient(90deg, var(--wall) 0%, #d97a8f 100%);
+            box-shadow: 0 2px 6px rgba(200, 90, 117, 0.5);
             z-index: 5;
-            position: relative;
+            border-radius: 3px;
+            border: 1px solid #a83d5a;
+        }
+        
+        .wall.h {
+            height: clamp(12px, 2.5vw, 20px);
+            width: calc(200% + var(--grid-gap));
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .wall.v {
+            width: clamp(12px, 2.5vw, 20px);
+            height: calc(200% + var(--grid-gap));
+            left: 50%;
+            transform: translateX(-50%);
         }
         
         /* GHOST WALLS */
@@ -535,8 +548,9 @@ let state = {
 
 let wallPlacing = {
     active: false,
-    cells: [],
-    orientation: 'h'
+    x: 0,
+    y: 0,
+    type: 'h'
 };
 
 let boardScaling = { cellSize: 40, gapSize: 10 };
@@ -573,17 +587,17 @@ function hasPath(playerPos, targetRow, walls) {
     return false;
 }
 
-function isWallCell(x, y, walls) {
+function isBlocked(x1, y1, x2, y2, walls) {
     for (let w of walls) {
-        for (let cell of w.cells) {
-            if (cell.x === x && cell.y === y) return true;
+        if (w.type === 'h') {
+            if (y1 < y2 && y2 - y1 === 1 && w.y === y1 && (w.x === x1 || w.x === x1 - 1)) return true;
+            if (y1 > y2 && y1 - y2 === 1 && w.y === y2 && (w.x === x1 || w.x === x1 - 1)) return true;
+        } else {
+            if (x1 < x2 && x2 - x1 === 1 && w.x === x1 && (w.y === y1 || w.y === y1 - 1)) return true;
+            if (x1 > x2 && x1 - x2 === 1 && w.x === x2 && (w.y === y1 || w.y === y1 - 1)) return true;
         }
     }
     return false;
-}
-
-function isBlocked(x1, y1, x2, y2, walls) {
-    return isWallCell(x2, y2, walls);
 }
 
 function getValidMoves(playerPos, walls) {
@@ -611,8 +625,9 @@ function startWallPlacement() {
         return;
     }
     wallPlacing.active = true;
-    wallPlacing.cells = [{x: 4, y: 4}];
-    wallPlacing.orientation = 'h';
+    wallPlacing.x = 3;
+    wallPlacing.y = 3;
+    wallPlacing.type = 'h';
     document.getElementById('wall-controller').classList.add('active');
     document.getElementById('place-wall-btn').style.display = 'none';
     updateWallPreview();
@@ -620,41 +635,40 @@ function startWallPlacement() {
 }
 
 function moveWall(dx, dy) {
-    const newCells = wallPlacing.cells.map(cell => ({
-        x: Math.max(0, Math.min(8, cell.x + dx)),
-        y: Math.max(0, Math.min(8, cell.y + dy))
-    }));
+    let newX = wallPlacing.x + dx;
+    let newY = wallPlacing.y + dy;
     
-    if (newCells.every(cell => cell.x >= 0 && cell.x <= 8 && cell.y >= 0 && cell.y <= 8)) {
-        wallPlacing.cells = newCells;
+    if (wallPlacing.type === 'h') {
+        newX = Math.max(0, Math.min(8, newX));
+        newY = Math.max(0, Math.min(7, newY));
+    } else {
+        newX = Math.max(0, Math.min(7, newX));
+        newY = Math.max(0, Math.min(8, newY));
     }
+    
+    wallPlacing.x = newX;
+    wallPlacing.y = newY;
     updateWallPreview();
     renderBoard();
 }
 
 function rotateWall() {
-    const baseCell = wallPlacing.cells[0];
-    
-    if (wallPlacing.orientation === 'h') {
-        wallPlacing.cells = [{x: baseCell.x, y: baseCell.y}, {x: baseCell.x, y: baseCell.y + 1}];
-        wallPlacing.orientation = 'v';
+    if (wallPlacing.type === 'h') {
+        wallPlacing.type = 'v';
+        wallPlacing.x = Math.min(wallPlacing.x, 7);
+        wallPlacing.y = Math.min(wallPlacing.y, 8);
     } else {
-        wallPlacing.cells = [{x: baseCell.x, y: baseCell.y}, {x: baseCell.x + 1, y: baseCell.y}];
-        wallPlacing.orientation = 'h';
+        wallPlacing.type = 'h';
+        wallPlacing.x = Math.min(wallPlacing.x, 8);
+        wallPlacing.y = Math.min(wallPlacing.y, 7);
     }
-    
-    if (!wallPlacing.cells.every(cell => cell.x >= 0 && cell.x <= 8 && cell.y >= 0 && cell.y <= 8)) {
-        wallPlacing.cells = [{x: baseCell.x, y: baseCell.y}];
-    }
-    
     updateWallPreview();
     renderBoard();
 }
 
 function updateWallPreview() {
-    const typeStr = wallPlacing.orientation === 'h' ? 'Horizontal (1x2)' : 'Vertical (2x1)';
-    const cellsStr = wallPlacing.cells.map(c => `(${c.x},${c.y})`).join(' + ');
-    document.getElementById('wall-preview').innerText = `${typeStr} • Position: ${cellsStr}`;
+    const typeStr = wallPlacing.type === 'h' ? 'Horizontal' : 'Vertical';
+    document.getElementById('wall-preview').innerText = `${typeStr} • Position: (${wallPlacing.x}, ${wallPlacing.y})`;
 }
 
 function deployWall() {
@@ -664,17 +678,11 @@ function deployWall() {
         return;
     }
     
-    for (let cell of wallPlacing.cells) {
-        if ((cell.x === state.p1.x && cell.y === state.p1.y) || (cell.x === state.p2.x && cell.y === state.p2.y)) {
-            alert("Can't place wall on a cat!");
-            return;
-        }
-    }
-    
     const overlap = state.walls.some(w => {
-        return w.cells.some(wCell => 
-            wallPlacing.cells.some(pCell => pCell.x === wCell.x && pCell.y === wCell.y)
-        );
+        if (w.x === wallPlacing.x && w.y === wallPlacing.y && w.type === wallPlacing.type) return true;
+        if (wallPlacing.type === 'h' && w.type === 'h' && w.y === wallPlacing.y && Math.abs(w.x - wallPlacing.x) <= 1) return true;
+        if (wallPlacing.type === 'v' && w.type === 'v' && w.x === wallPlacing.x && Math.abs(w.y - wallPlacing.y) <= 1) return true;
+        return false;
     });
 
     if (overlap) {
@@ -682,13 +690,13 @@ function deployWall() {
         return;
     }
 
-    const testWalls = [...state.walls, {cells: wallPlacing.cells, orientation: wallPlacing.orientation}];
+    const testWalls = [...state.walls, {x: wallPlacing.x, y: wallPlacing.y, type: wallPlacing.type}];
     if (!hasPath(state.p1, 8, testWalls) || !hasPath(state.p2, 0, testWalls)) {
         alert("Can't block the path!");
         return;
     }
 
-    sendMove({ type: 'WALL', cells: wallPlacing.cells, orientation: wallPlacing.orientation });
+    sendMove({ type: 'WALL', x: wallPlacing.x, y: wallPlacing.y, wallType: wallPlacing.type });
     cancelWallPlacement();
 }
 
@@ -702,43 +710,15 @@ function cancelWallPlacement() {
 function renderBoard() {
     const board = document.getElementById('board');
     board.innerHTML = '';
-    
-    const wallCells = new Set();
-    state.walls.forEach(w => {
-        w.cells.forEach(cell => {
-            wallCells.add(`${cell.x},${cell.y}`);
-        });
-    });
-    
-    const previewCells = new Set();
-    if (wallPlacing.active) {
-        wallPlacing.cells.forEach(cell => {
-            previewCells.add(`${cell.x},${cell.y}`);
-        });
-    }
 
     for (let y = 0; y < 9; y++) {
         for (let x = 0; x < 9; x++) {
-            const cellKey = `${x},${y}`;
-            
-            if (wallCells.has(cellKey)) {
-                let wallBlock = document.createElement('div');
-                wallBlock.className = 'wall-block';
-                board.appendChild(wallBlock);
-            } else if (previewCells.has(cellKey)) {
-                let previewBlock = document.createElement('div');
-                previewBlock.className = 'wall-block';
-                previewBlock.style.opacity = '0.5';
-                previewBlock.style.borderStyle = 'dashed';
-                board.appendChild(previewBlock);
-            } else {
-                let d = document.createElement('div');
-                d.className = 'cell';
-                d.dataset.x = x;
-                d.dataset.y = y;
-                d.onclick = () => handleMoveClick(x, y);
-                board.appendChild(d);
-            }
+            let d = document.createElement('div');
+            d.className = 'cell';
+            d.dataset.x = x;
+            d.dataset.y = y;
+            d.onclick = () => handleMoveClick(x, y);
+            board.appendChild(d);
         }
     }
 
@@ -767,6 +747,71 @@ function renderBoard() {
         p2.innerText = '😻';
         p2.style.pointerEvents = 'none';
         p2Cell.appendChild(p2);
+    }
+
+    state.walls.forEach(w => {
+        let wallEl = document.createElement('div');
+        wallEl.className = `wall ${w.type}`;
+        
+        let cellX = w.x;
+        let cellY = w.y;
+        
+        if (w.type === 'h') {
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                wallEl.style.width = 'calc(200% + var(--grid-gap))';
+                wallEl.style.height = 'clamp(12px, 2.5vw, 20px)';
+                wallEl.style.left = 'calc(-100% - calc(var(--grid-gap) / 2))';
+                wallEl.style.top = '100%';
+                wallEl.style.marginTop = 'calc(var(--grid-gap) / -2)';
+                targetCell.appendChild(wallEl);
+            }
+        } else {
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                wallEl.style.width = 'clamp(12px, 2.5vw, 20px)';
+                wallEl.style.height = 'calc(200% + var(--grid-gap))';
+                wallEl.style.left = '100%';
+                wallEl.style.top = 'calc(-100% - calc(var(--grid-gap) / 2))';
+                wallEl.style.marginLeft = 'calc(var(--grid-gap) / -2)';
+                targetCell.appendChild(wallEl);
+            }
+        }
+    });
+
+    if (wallPlacing.active) {
+        let previewWall = document.createElement('div');
+        previewWall.className = `wall ${wallPlacing.type}`;
+        previewWall.style.opacity = '0.6';
+        
+        let cellX = wallPlacing.x;
+        let cellY = wallPlacing.y;
+        
+        if (wallPlacing.type === 'h') {
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                previewWall.style.width = 'calc(200% + var(--grid-gap))';
+                previewWall.style.height = 'clamp(12px, 2.5vw, 20px)';
+                previewWall.style.left = 'calc(-100% - calc(var(--grid-gap) / 2))';
+                previewWall.style.top = '100%';
+                previewWall.style.marginTop = 'calc(var(--grid-gap) / -2)';
+                targetCell.appendChild(previewWall);
+            }
+        } else {
+            let targetCell = board.querySelector(`[data-x="${cellX}"][data-y="${cellY}"]`);
+            if (targetCell) {
+                previewWall.style.width = 'clamp(12px, 2.5vw, 20px)';
+                previewWall.style.height = 'calc(200% + var(--grid-gap))';
+                previewWall.style.left = '100%';
+                previewWall.style.top = 'calc(-100% - calc(var(--grid-gap) / 2))';
+                previewWall.style.marginLeft = 'calc(var(--grid-gap) / -2)';
+                targetCell.appendChild(previewWall);
+            }
+        }
+    }
+
+    if (state.turn === state.myPlayerId && !wallPlacing.active) {
+        renderWallGaps(board);
     }
     
     updateStatus();
@@ -827,7 +872,7 @@ function applyMove(data) {
         p.x = data.x;
         p.y = data.y;
     } else if (data.type === 'WALL') {
-        state.walls.push({ cells: data.cells, orientation: data.orientation });
+        state.walls.push({ x: data.x, y: data.y, type: data.wallType });
         const me = state.turn === 1 ? state.p1 : state.p2;
         me.walls--;
         cancelWallPlacement();
